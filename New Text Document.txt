@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forever Bhanu ❤️</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: radial-gradient(circle at center, #1a001a, #000);
+    overflow: hidden;
+    color: white;
+}
+
+/* PASSWORD */
+#passwordScreen {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+input {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    margin-top: 10px;
+}
+
+button {
+    padding: 12px 25px;
+    border-radius: 25px;
+    border: none;
+    margin-top: 15px;
+    cursor: pointer;
+    background: gold;
+    color: black;
+    font-weight: bold;
+}
+
+/* EXPERIENCE */
+.banner {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* GLOW BEHIND IMAGE */
+.glow {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(255,215,0,0.4), transparent);
+    filter: blur(80px);
+    z-index: 2;
+}
+
+/* SLIDES */
+.slide {
+    position: absolute;
+    max-width: 80%;
+    max-height: 70%;
+    border-radius: 20px;
+    opacity: 0;
+    transition: opacity 2s ease-in-out, transform 12s ease-in-out;
+    transform: scale(1);
+    z-index: 3;
+    box-shadow: 0 0 40px rgba(255,215,0,0.5);
+}
+
+.slide.active {
+    opacity: 1;
+    transform: scale(1.08);
+}
+
+/* FINAL BLUR EFFECT */
+.finale {
+    filter: blur(3px) brightness(0.7);
+}
+
+.banner h2 {
+    position: absolute;
+    bottom: 120px;
+    font-size: 3rem;
+    color: gold;
+    text-shadow: 0 0 20px gold;
+    z-index: 4;
+}
+
+/* FLOWERS */
+@keyframes fall {
+    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+
+/* PROPOSAL */
+#proposal {
+    position: absolute;
+    bottom: 30px;
+    display: none;
+    z-index: 5;
+    text-align: center;
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+</style>
+</head>
+
+<body>
+
+<div id="passwordScreen">
+    <h2>Enter Our Secret Password 💖</h2>
+    <input type="password" id="passwordInput">
+    <button onclick="checkPassword()">Unlock ❤️</button>
+</div>
+
+<div class="banner" id="banner">
+
+    <div class="glow"></div>
+
+    <!-- 7 Bhanu -->
+    <img src="bhanu1.jpg" class="slide active">
+    <img src="bhanu2.jpg" class="slide">
+    <img src="bhanu3.jpg" class="slide">
+    <img src="bhanu4.jpg" class="slide">
+    <img src="bhanu5.jpg" class="slide">
+    <img src="bhanu6.jpg" class="slide">
+    <img src="bhanu7.jpg" class="slide">
+
+    <!-- 3 Couple -->
+    <img src="couple1.jpg" class="slide">
+    <img src="couple2.jpg" class="slide">
+    <img src="couple3.jpg" class="slide" id="finalPhoto">
+
+    <canvas id="fireworks"></canvas>
+
+    <h2>Happy Valentine's Day Bhanu ❤️</h2>
+
+    <div id="proposal">
+        <h3>Will You Always Be Mine? 💍</h3>
+        <button onclick="celebrate()">YES ❤️</button>
+    </div>
+
+    <audio id="bgMusic" src="music.mp3.mp4"></audio>
+
+</div>
+
+<script>
+
+const correctPassword = "iloveyou";
+
+function checkPassword() {
+    if(document.getElementById("passwordInput").value === correctPassword) {
+        document.getElementById("passwordScreen").style.display = "none";
+        startExperience();
+    } else {
+        alert("Wrong password 😜");
+    }
+}
+
+function startExperience() {
+    document.getElementById("banner").style.display = "flex";
+    document.getElementById("bgMusic").play();
+    startSlideshow();
+    startHeartFireworks();
+    createFlowers();
+}
+
+/* SLIDESHOW */
+let slideIndex = 0;
+function startSlideshow() {
+    const slides = document.querySelectorAll(".slide");
+
+    setInterval(() => {
+        slides[slideIndex].classList.remove("active");
+        slideIndex++;
+
+        if(slideIndex >= slides.length) {
+            slideIndex = slides.length - 1;
+            slides[slideIndex].classList.add("finale");
+            document.getElementById("proposal").style.display = "block";
+        }
+
+        slides[slideIndex].classList.add("active");
+
+    }, 8000);
+}
+
+/* MORE FLOWERS */
+function createFlowers() {
+    setInterval(() => {
+        for(let i=0;i<4;i++){
+            const flower = document.createElement("div");
+            flower.innerHTML = "🌸";
+            flower.style.position = "fixed";
+            flower.style.left = Math.random()*100+"vw";
+            flower.style.top = "-20px";
+            flower.style.fontSize = Math.random()*20+20+"px";
+            flower.style.animation = "fall 10s linear";
+            flower.style.zIndex = "2";
+            document.body.appendChild(flower);
+            setTimeout(()=>flower.remove(),10000);
+        }
+    },300);
+}
+
+/* HEART FIREWORKS */
+function startHeartFireworks() {
+    const canvas=document.getElementById("fireworks");
+    const ctx=canvas.getContext("2d");
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
+
+    function drawHeart(x,y,size,color,alpha){
+        ctx.globalAlpha=alpha;
+        ctx.fillStyle=color;
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+        ctx.bezierCurveTo(x-size,y-size,x-size*2,y+size,x,y+size*2);
+        ctx.bezierCurveTo(x+size*2,y+size,x+size,y-size,x,y);
+        ctx.fill();
+        ctx.globalAlpha=1;
+    }
+
+    let hearts=[];
+
+    function explode(){
+        let x=Math.random()*canvas.width;
+        let y=Math.random()*canvas.height/2;
+        for(let i=0;i<20;i++){
+            hearts.push({
+                x:x,
+                y:y,
+                dx:(Math.random()-0.5)*4,
+                dy:(Math.random()-0.5)*4,
+                size:Math.random()*8+5,
+                alpha:1,
+                color:"gold"
+            });
+        }
+    }
+
+    function animate(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        hearts.forEach((h,i)=>{
+            h.x+=h.dx;
+            h.y+=h.dy;
+            h.alpha-=0.02;
+            drawHeart(h.x,h.y,h.size,h.color,h.alpha);
+            if(h.alpha<=0) hearts.splice(i,1);
+        });
+        requestAnimationFrame(animate);
+    }
+
+    setInterval(explode,2000);
+    animate();
+}
+
+function celebrate(){
+    alert("Forever starts now ❤️✨");
+}
+
+</script>
+
+</body>
+</html>
