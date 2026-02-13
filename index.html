@@ -60,21 +60,23 @@ button {
     transition: opacity 2s ease;
 }
 
-/* BACKGROUND LAYER */
+/* BACKGROUND LAYER FOR HEARTS */
 #backgroundLayer {
     position: absolute;
     width: 100%;
     height: 100%;
     z-index: 0;
     overflow: hidden;
+    pointer-events: none;
 }
 
-/* FLOWERS */
-.flower {
+/* HEARTS - FALLING BACKGROUND (Won't overlap images) */
+.heart {
     position: absolute;
-    font-size: 22px;
     animation: fall linear infinite;
-    opacity: 0.6;
+    opacity: 0.35;
+    pointer-events: none;
+    font-size: 24px;
 }
 
 @keyframes fall {
@@ -125,6 +127,7 @@ canvas {
     top: 0;
     left: 0;
     z-index: 1;
+    pointer-events: none;
 }
 </style>
 </head>
@@ -141,7 +144,7 @@ canvas {
 
     <div id="backgroundLayer"></div>
 
-    <!-- 7 Bhanu -->
+    <!-- 7 Bhanu Images -->
     <img src="bhanu1.jpg" class="slide active">
     <img src="bhanu2.jpg" class="slide">
     <img src="bhanu3.jpg" class="slide">
@@ -150,7 +153,7 @@ canvas {
     <img src="bhanu6.jpg" class="slide">
     <img src="bhanu7.jpg" class="slide">
 
-    <!-- 3 Couple -->
+    <!-- 3 Couple Images -->
     <img src="couple1.jpg" class="slide">
     <img src="couple2.jpg" class="slide">
     <img src="couple3.jpg" class="slide">
@@ -189,7 +192,7 @@ function startExperience() {
     setTimeout(()=> banner.style.opacity = "1", 100);
     document.getElementById("bgMusic").play();
     startSlideshow();
-    createFlowers();
+    createFallingHearts();
     startHeartFireworks();
 }
 
@@ -210,22 +213,31 @@ function startSlideshow() {
     }, 10000);
 }
 
-/* FLOWERS BACKGROUND ONLY */
-function createFlowers(){
+/* FALLING HEARTS - BACKGROUND ONLY (Won't overlap images) */
+function createFallingHearts(){
     const bg = document.getElementById("backgroundLayer");
 
+    // Create falling hearts more frequently
     setInterval(()=>{
-        const flower = document.createElement("div");
-        flower.className="flower";
-        flower.innerHTML="🌸";
-        flower.style.left=Math.random()*100+"vw";
-        flower.style.animationDuration=(Math.random()*6+6)+"s";
-        bg.appendChild(flower);
-        setTimeout(()=>flower.remove(),12000);
-    },800);
+        const heart = document.createElement("div");
+        heart.className="heart";
+        heart.innerHTML="❤️";
+        
+        // Position hearts only on sides (left and right edges) to avoid image overlap
+        const side = Math.random() > 0.5 ? "left" : "right";
+        if(side === "left") {
+            heart.style.left = (Math.random() * 20) + "vw"; // Left 0-20%
+        } else {
+            heart.style.left = (Math.random() * 20 + 80) + "vw"; // Right 80-100%
+        }
+        
+        heart.style.animationDuration = (Math.random() * 5 + 7) + "s";
+        bg.appendChild(heart);
+        setTimeout(()=>heart.remove(), 12000);
+    }, 400); // Increased frequency - hearts every 400ms instead of 800ms
 }
 
-/* HEART SHAPE FIREWORKS */
+/* HEART SHAPE FIREWORKS - INCREASED INTENSITY */
 function startHeartFireworks(){
     const canvas=document.getElementById("fireworks");
     const ctx=canvas.getContext("2d");
@@ -235,49 +247,63 @@ function startHeartFireworks(){
     let hearts=[];
 
     function explode(){
-        let x=Math.random()*canvas.width;
-        let y=Math.random()*canvas.height/2;
+        // Create multiple explosions for increased effect
+        for(let e = 0; e < 2; e++) {
+            let x = Math.random() * canvas.width;
+            let y = Math.random() * (canvas.height/2);
 
-        for(let i=0;i<20;i++){
-            hearts.push({
-                x:x,
-                y:y,
-                dx:(Math.random()-0.5)*4,
-                dy:(Math.random()-0.5)*4,
-                size:6,
-                alpha:1
-            });
+            // Increased particles per explosion (20 -> 40)
+            for(let i = 0; i < 40; i++){
+                hearts.push({
+                    x: x,
+                    y: y,
+                    dx: (Math.random() - 0.5) * 5,
+                    dy: (Math.random() - 0.5) * 5,
+                    size: Math.random() * 3 + 4,
+                    alpha: 1
+                });
+            }
         }
     }
 
-    function drawHeart(x,y,size,alpha){
-        ctx.globalAlpha=alpha;
-        ctx.fillStyle="red";
+    function drawHeart(x, y, size, alpha){
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = "red";
         ctx.beginPath();
-        ctx.moveTo(x,y);
-        ctx.bezierCurveTo(x-size,y-size,x-size*2,y+size,x,y+size*2);
-        ctx.bezierCurveTo(x+size*2,y+size,x+size,y-size,x,y);
+        ctx.moveTo(x, y);
+        ctx.bezierCurveTo(x - size, y - size, x - size * 2, y + size, x, y + size * 2);
+        ctx.bezierCurveTo(x + size * 2, y + size, x + size, y - size, x, y);
         ctx.fill();
-        ctx.globalAlpha=1;
+        ctx.globalAlpha = 1;
     }
 
     function animate(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        hearts.forEach((h,i)=>{
-            h.x+=h.dx;
-            h.y+=h.dy;
-            h.alpha-=0.02;
-            drawHeart(h.x,h.y,h.size,h.alpha);
-            if(h.alpha<=0) hearts.splice(i,1);
+        hearts.forEach((h, i)=>{
+            h.x += h.dx;
+            h.y += h.dy;
+            h.alpha -= 0.015; // Slightly faster fade
+            drawHeart(h.x, h.y, h.size, h.alpha);
+            if(h.alpha <= 0) hearts.splice(i, 1);
         });
 
         requestAnimationFrame(animate);
     }
 
-    setInterval(explode,3000);
+    // Fireworks every 2 seconds instead of 3 (more frequent)
+    setInterval(explode, 2000);
     animate();
 }
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    const canvas = document.getElementById("fireworks");
+    if(canvas) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+});
 
 </script>
 
