@@ -60,41 +60,26 @@ button {
     transition: opacity 2s ease;
 }
 
-/* BACKGROUND HEARTS */
-#heartBackground {
+/* BACKGROUND LAYER */
+#backgroundLayer {
     position: absolute;
     width: 100%;
     height: 100%;
-    overflow: hidden;
     z-index: 0;
-    pointer-events: none;
+    overflow: hidden;
 }
 
-.heart {
+/* FLOWERS */
+.flower {
     position: absolute;
-    width: 16px;
-    height: 16px;
-    background: rgba(255,0,0,0.5);
-    transform: rotate(45deg);
-    animation: floatUp linear infinite;
+    font-size: 22px;
+    animation: fall linear infinite;
+    opacity: 0.6;
 }
 
-.heart::before,
-.heart::after {
-    content: "";
-    position: absolute;
-    width: 16px;
-    height: 16px;
-    background: rgba(255,0,0,0.5);
-    border-radius: 50%;
-}
-
-.heart::before { top: -8px; left: 0; }
-.heart::after { left: -8px; top: 0; }
-
-@keyframes floatUp {
-    0% { transform: translateY(100vh) rotate(45deg); opacity: 0.7; }
-    100% { transform: translateY(-10vh) rotate(45deg); opacity: 0; }
+@keyframes fall {
+    0% { transform: translateY(-10vh) rotate(0deg); }
+    100% { transform: translateY(110vh) rotate(360deg); }
 }
 
 /* SLIDES */
@@ -115,7 +100,7 @@ button {
     transform: scale(1.1);
 }
 
-/* TEXT (ONLY FINAL SLIDE) */
+/* TEXT FINAL ONLY */
 #finalText {
     position: absolute;
     bottom: 120px;
@@ -127,7 +112,6 @@ button {
 #finalText h2 {
     font-size: 3rem;
     color: #ff4d6d;
-    text-shadow: 0 0 20px red;
 }
 
 #finalText p {
@@ -135,7 +119,7 @@ button {
     color: #ffc2d1;
 }
 
-/* FIREWORKS */
+/* FIREWORKS CANVAS */
 canvas {
     position: absolute;
     top: 0;
@@ -155,9 +139,9 @@ canvas {
 
 <div class="banner" id="banner">
 
-    <div id="heartBackground"></div>
+    <div id="backgroundLayer"></div>
 
-    <!-- 7 Bhanu Photos -->
+    <!-- 7 Bhanu -->
     <img src="bhanu1.jpg" class="slide active">
     <img src="bhanu2.jpg" class="slide">
     <img src="bhanu3.jpg" class="slide">
@@ -166,14 +150,13 @@ canvas {
     <img src="bhanu6.jpg" class="slide">
     <img src="bhanu7.jpg" class="slide">
 
-    <!-- 3 Couple Photos -->
+    <!-- 3 Couple -->
     <img src="couple1.jpg" class="slide">
     <img src="couple2.jpg" class="slide">
     <img src="couple3.jpg" class="slide">
 
     <canvas id="fireworks"></canvas>
 
-    <!-- TEXT ONLY FOR LAST IMAGE -->
     <div id="finalText">
         <h2>Happy Valentine's Day Bhanu ❤️</h2>
         <p>You are my today, my tomorrow, and every beautiful memory in between.</p>
@@ -206,8 +189,8 @@ function startExperience() {
     setTimeout(()=> banner.style.opacity = "1", 100);
     document.getElementById("bgMusic").play();
     startSlideshow();
-    createHearts();
-    startRedFireworks();
+    createFlowers();
+    startHeartFireworks();
 }
 
 /* SLIDESHOW */
@@ -217,73 +200,78 @@ function startSlideshow() {
     setInterval(() => {
         slides[slideIndex].classList.remove("active");
         slideIndex++;
-
         if(slideIndex >= slides.length) slideIndex = slides.length - 1;
-
         slides[slideIndex].classList.add("active");
 
-        // Show text only on last slide
-        if(slideIndex === slides.length - 1) {
-            document.getElementById("finalText").style.display = "block";
+        if(slideIndex === slides.length - 1){
+            document.getElementById("finalText").style.display="block";
         }
 
     }, 10000);
 }
 
-/* HEART BACKGROUND ALWAYS ACTIVE */
-function createHearts() {
-    const container = document.getElementById("heartBackground");
+/* FLOWERS BACKGROUND ONLY */
+function createFlowers(){
+    const bg = document.getElementById("backgroundLayer");
 
-    setInterval(() => {
-        const heart = document.createElement("div");
-        heart.classList.add("heart");
-        heart.style.left = Math.random()*100+"vw";
-        heart.style.animationDuration = (Math.random()*6+6)+"s";
-        container.appendChild(heart);
-        setTimeout(()=>heart.remove(),12000);
-    },600);
+    setInterval(()=>{
+        const flower = document.createElement("div");
+        flower.className="flower";
+        flower.innerHTML="🌸";
+        flower.style.left=Math.random()*100+"vw";
+        flower.style.animationDuration=(Math.random()*6+6)+"s";
+        bg.appendChild(flower);
+        setTimeout(()=>flower.remove(),12000);
+    },800);
 }
 
-/* RED FIREWORKS SUBTLE */
-function startRedFireworks() {
-    const canvas = document.getElementById("fireworks");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+/* HEART SHAPE FIREWORKS */
+function startHeartFireworks(){
+    const canvas=document.getElementById("fireworks");
+    const ctx=canvas.getContext("2d");
+    canvas.width=window.innerWidth;
+    canvas.height=window.innerHeight;
 
-    let particles=[];
+    let hearts=[];
 
     function explode(){
         let x=Math.random()*canvas.width;
         let y=Math.random()*canvas.height/2;
-        for(let i=0;i<40;i++){
-            particles.push({
+
+        for(let i=0;i<20;i++){
+            hearts.push({
                 x:x,
                 y:y,
                 dx:(Math.random()-0.5)*4,
                 dy:(Math.random()-0.5)*4,
+                size:6,
                 alpha:1
             });
         }
     }
 
-    function animate(){
-        ctx.fillStyle="rgba(0,0,0,0.2)";
-        ctx.fillRect(0,0,canvas.width,canvas.height);
+    function drawHeart(x,y,size,alpha){
+        ctx.globalAlpha=alpha;
+        ctx.fillStyle="red";
+        ctx.beginPath();
+        ctx.moveTo(x,y);
+        ctx.bezierCurveTo(x-size,y-size,x-size*2,y+size,x,y+size*2);
+        ctx.bezierCurveTo(x+size*2,y+size,x+size,y-size,x,y);
+        ctx.fill();
+        ctx.globalAlpha=1;
+    }
 
-        particles.forEach((p,i)=>{
-            p.x+=p.dx;
-            p.y+=p.dy;
-            p.alpha-=0.02;
-            ctx.globalAlpha=p.alpha;
-            ctx.fillStyle="red";
-            ctx.beginPath();
-            ctx.arc(p.x,p.y,2,0,Math.PI*2);
-            ctx.fill();
-            if(p.alpha<=0) particles.splice(i,1);
+    function animate(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+
+        hearts.forEach((h,i)=>{
+            h.x+=h.dx;
+            h.y+=h.dy;
+            h.alpha-=0.02;
+            drawHeart(h.x,h.y,h.size,h.alpha);
+            if(h.alpha<=0) hearts.splice(i,1);
         });
 
-        ctx.globalAlpha=1;
         requestAnimationFrame(animate);
     }
 
