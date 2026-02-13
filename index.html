@@ -9,7 +9,7 @@
 body {
     margin: 0;
     font-family: 'Segoe UI', sans-serif;
-    background: radial-gradient(circle at center, #1a001a, #000);
+    background: radial-gradient(circle at center, #1a0000, #000);
     overflow: hidden;
     color: white;
 }
@@ -19,12 +19,13 @@ body {
     position: fixed;
     width: 100%;
     height: 100%;
-    background: #000;
+    background: black;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     z-index: 9999;
+    transition: opacity 1.5s ease;
 }
 
 input {
@@ -55,16 +56,46 @@ button {
     align-items: center;
     flex-direction: column;
     overflow: hidden;
+    opacity: 0;
+    transition: opacity 2s ease;
 }
 
-/* SOFT GLOW */
-.glow {
+/* HEART BACKGROUND */
+#heartBackground {
     position: absolute;
-    width: 600px;
-    height: 600px;
-    background: radial-gradient(circle, rgba(255,0,0,0.4), transparent);
-    filter: blur(120px);
-    z-index: 2;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+}
+
+.heart {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: rgba(255,0,0,0.6);
+    transform: rotate(45deg);
+    animation: floatUp linear infinite;
+    filter: blur(1px);
+}
+
+.heart::before,
+.heart::after {
+    content: "";
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: rgba(255,0,0,0.6);
+    border-radius: 50%;
+}
+
+.heart::before { top: -9px; left: 0; }
+.heart::after { left: -9px; top: 0; }
+
+@keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(45deg) scale(0.8); opacity: 0.8; }
+    100% { transform: translateY(-10vh) rotate(45deg) scale(1.4); opacity: 0; }
 }
 
 /* SLIDES */
@@ -77,18 +108,18 @@ button {
     transition: opacity 2s ease-in-out, transform 15s ease-in-out;
     transform: scale(1);
     z-index: 3;
-    box-shadow: 0 0 40px rgba(255,0,0,0.5);
+    box-shadow: 0 0 40px rgba(255,0,0,0.4);
 }
 
 .slide.active {
     opacity: 1;
-    transform: scale(1.12);
+    transform: scale(1.15);
 }
 
 /* TEXT */
 .banner h2 {
     position: absolute;
-    bottom: 140px;
+    bottom: 130px;
     font-size: 3rem;
     color: #ff4d6d;
     text-shadow: 0 0 25px red;
@@ -101,20 +132,16 @@ button {
     font-size: 1.4rem;
     color: #ffc2d1;
     z-index: 4;
+    text-align: center;
     max-width: 80%;
 }
 
-/* FLOWERS */
-@keyframes fall {
-    0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-}
-
+/* FIREWORKS */
 canvas {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 1; /* behind images */
+    z-index: 1;
 }
 </style>
 </head>
@@ -129,9 +156,9 @@ canvas {
 
 <div class="banner" id="banner">
 
-    <div class="glow"></div>
+    <div id="heartBackground"></div>
 
-    <!-- 7 Bhanu -->
+    <!-- 10 Bhanu Photos -->
     <img src="bhanu1.jpg" class="slide active">
     <img src="bhanu2.jpg" class="slide">
     <img src="bhanu3.jpg" class="slide">
@@ -139,8 +166,11 @@ canvas {
     <img src="bhanu5.jpg" class="slide">
     <img src="bhanu6.jpg" class="slide">
     <img src="bhanu7.jpg" class="slide">
+    <img src="bhanu8.jpg" class="slide">
+    <img src="bhanu9.jpg" class="slide">
+    <img src="bhanu10.jpg" class="slide">
 
-    <!-- 3 Couple -->
+    <!-- 3 Couple Finale -->
     <img src="couple1.jpg" class="slide">
     <img src="couple2.jpg" class="slide">
     <img src="couple3.jpg" class="slide">
@@ -148,7 +178,7 @@ canvas {
     <canvas id="fireworks"></canvas>
 
     <h2>Happy Valentine's Day Bhanu ❤️</h2>
-    <p>You are the most beautiful chapter of my life, today and always.</p>
+    <p>You are my today, my tomorrow, and every beautiful memory in between.</p>
 
     <audio id="bgMusic" src="music.mp3.mp4"></audio>
 
@@ -157,74 +187,79 @@ canvas {
 <script>
 
 const correctPassword = "iloveyou";
+let slideIndex = 0;
 
 function checkPassword() {
     if(document.getElementById("passwordInput").value === correctPassword) {
-        document.getElementById("passwordScreen").style.display = "none";
-        startExperience();
+        document.getElementById("passwordScreen").style.opacity = "0";
+        setTimeout(()=>{
+            document.getElementById("passwordScreen").style.display="none";
+            startExperience();
+        },1500);
     } else {
-        alert("Wrong password 😜");
+        alert("Wrong password my love 😜");
     }
 }
 
 function startExperience() {
-    document.getElementById("banner").style.display = "flex";
+    const banner = document.getElementById("banner");
+    banner.style.display = "flex";
+    setTimeout(()=> banner.style.opacity = "1", 100);
     document.getElementById("bgMusic").play();
     startSlideshow();
+    createHearts();
     startRedFireworks();
-    createFlowers();
 }
 
-/* SLOW SLIDES */
-let slideIndex = 0;
+/* SLOW CINEMATIC SLIDES */
 function startSlideshow() {
     const slides = document.querySelectorAll(".slide");
 
     setInterval(() => {
         slides[slideIndex].classList.remove("active");
         slideIndex++;
-        if(slideIndex >= slides.length) slideIndex = slides.length - 1;
+        if(slideIndex >= slides.length) {
+            fadeToBlack();
+            slideIndex = slides.length - 1;
+        }
         slides[slideIndex].classList.add("active");
     }, 10000);
 }
 
-/* FLOWERS IN BACKGROUND */
-function createFlowers() {
+/* HEART BACKGROUND */
+function createHearts() {
+    const container = document.getElementById("heartBackground");
+
     setInterval(() => {
-        for(let i=0;i<3;i++){
-            const flower = document.createElement("div");
-            flower.innerHTML = "🌸";
-            flower.style.position = "fixed";
-            flower.style.left = Math.random()*100+"vw";
-            flower.style.top = "-20px";
-            flower.style.fontSize = Math.random()*20+20+"px";
-            flower.style.animation = "fall 12s linear";
-            flower.style.zIndex = "0";
-            document.body.appendChild(flower);
-            setTimeout(()=>flower.remove(),12000);
+        if(slideIndex < 10) {
+            const heart = document.createElement("div");
+            heart.classList.add("heart");
+            heart.style.left = Math.random()*100+"vw";
+            heart.style.animationDuration = (Math.random()*6+8)+"s";
+            container.appendChild(heart);
+            setTimeout(()=>heart.remove(),14000);
         }
-    },500);
+    },600);
 }
 
-/* RED BACKGROUND FIREWORKS */
+/* RED FIREWORKS */
 function startRedFireworks() {
-    const canvas=document.getElementById("fireworks");
-    const ctx=canvas.getContext("2d");
-    canvas.width=window.innerWidth;
-    canvas.height=window.innerHeight;
+    const canvas = document.getElementById("fireworks");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     let particles=[];
 
     function explode(){
         let x=Math.random()*canvas.width;
         let y=Math.random()*canvas.height/2;
-
-        for(let i=0;i<60;i++){
+        for(let i=0;i<50;i++){
             particles.push({
                 x:x,
                 y:y,
-                dx:(Math.random()-0.5)*6,
-                dy:(Math.random()-0.5)*6,
+                dx:(Math.random()-0.5)*5,
+                dy:(Math.random()-0.5)*5,
                 alpha:1
             });
         }
@@ -254,6 +289,12 @@ function startRedFireworks() {
 
     setInterval(explode,3000);
     animate();
+}
+
+/* FADE TO BLACK ENDING */
+function fadeToBlack(){
+    document.body.style.transition="background 4s ease";
+    document.body.style.background="black";
 }
 
 </script>
