@@ -40,8 +40,8 @@ button {
     border: none;
     margin-top: 15px;
     cursor: pointer;
-    background: gold;
-    color: black;
+    background: red;
+    color: white;
     font-weight: bold;
 }
 
@@ -57,13 +57,13 @@ button {
     overflow: hidden;
 }
 
-/* GLOW BEHIND IMAGE */
+/* SOFT GLOW */
 .glow {
     position: absolute;
-    width: 500px;
-    height: 500px;
-    background: radial-gradient(circle, rgba(255,215,0,0.4), transparent);
-    filter: blur(80px);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255,0,0,0.4), transparent);
+    filter: blur(120px);
     z-index: 2;
 }
 
@@ -74,29 +74,34 @@ button {
     max-height: 70%;
     border-radius: 20px;
     opacity: 0;
-    transition: opacity 2s ease-in-out, transform 12s ease-in-out;
+    transition: opacity 2s ease-in-out, transform 15s ease-in-out;
     transform: scale(1);
     z-index: 3;
-    box-shadow: 0 0 40px rgba(255,215,0,0.5);
+    box-shadow: 0 0 40px rgba(255,0,0,0.5);
 }
 
 .slide.active {
     opacity: 1;
-    transform: scale(1.08);
+    transform: scale(1.12);
 }
 
-/* FINAL BLUR EFFECT */
-.finale {
-    filter: blur(3px) brightness(0.7);
-}
-
+/* TEXT */
 .banner h2 {
     position: absolute;
-    bottom: 120px;
+    bottom: 140px;
     font-size: 3rem;
-    color: gold;
-    text-shadow: 0 0 20px gold;
+    color: #ff4d6d;
+    text-shadow: 0 0 25px red;
     z-index: 4;
+}
+
+.banner p {
+    position: absolute;
+    bottom: 90px;
+    font-size: 1.4rem;
+    color: #ffc2d1;
+    z-index: 4;
+    max-width: 80%;
 }
 
 /* FLOWERS */
@@ -105,20 +110,11 @@ button {
     100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
 
-/* PROPOSAL */
-#proposal {
-    position: absolute;
-    bottom: 30px;
-    display: none;
-    z-index: 5;
-    text-align: center;
-}
-
 canvas {
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 1;
+    z-index: 1; /* behind images */
 }
 </style>
 </head>
@@ -147,16 +143,12 @@ canvas {
     <!-- 3 Couple -->
     <img src="couple1.jpg" class="slide">
     <img src="couple2.jpg" class="slide">
-    <img src="couple3.jpg" class="slide" id="finalPhoto">
+    <img src="couple3.jpg" class="slide">
 
     <canvas id="fireworks"></canvas>
 
     <h2>Happy Valentine's Day Bhanu ❤️</h2>
-
-    <div id="proposal">
-        <h3>Will You Always Be Mine? 💍</h3>
-        <button onclick="celebrate()">YES ❤️</button>
-    </div>
+    <p>You are the most beautiful chapter of my life, today and always.</p>
 
     <audio id="bgMusic" src="music.mp3.mp4"></audio>
 
@@ -179,11 +171,11 @@ function startExperience() {
     document.getElementById("banner").style.display = "flex";
     document.getElementById("bgMusic").play();
     startSlideshow();
-    startHeartFireworks();
+    startRedFireworks();
     createFlowers();
 }
 
-/* SLIDESHOW */
+/* SLOW SLIDES */
 let slideIndex = 0;
 function startSlideshow() {
     const slides = document.querySelectorAll(".slide");
@@ -191,90 +183,77 @@ function startSlideshow() {
     setInterval(() => {
         slides[slideIndex].classList.remove("active");
         slideIndex++;
-
-        if(slideIndex >= slides.length) {
-            slideIndex = slides.length - 1;
-            slides[slideIndex].classList.add("finale");
-            document.getElementById("proposal").style.display = "block";
-        }
-
+        if(slideIndex >= slides.length) slideIndex = slides.length - 1;
         slides[slideIndex].classList.add("active");
-
-    }, 8000);
+    }, 10000);
 }
 
-/* MORE FLOWERS */
+/* FLOWERS IN BACKGROUND */
 function createFlowers() {
     setInterval(() => {
-        for(let i=0;i<4;i++){
+        for(let i=0;i<3;i++){
             const flower = document.createElement("div");
             flower.innerHTML = "🌸";
             flower.style.position = "fixed";
             flower.style.left = Math.random()*100+"vw";
             flower.style.top = "-20px";
             flower.style.fontSize = Math.random()*20+20+"px";
-            flower.style.animation = "fall 10s linear";
-            flower.style.zIndex = "2";
+            flower.style.animation = "fall 12s linear";
+            flower.style.zIndex = "0";
             document.body.appendChild(flower);
-            setTimeout(()=>flower.remove(),10000);
+            setTimeout(()=>flower.remove(),12000);
         }
-    },300);
+    },500);
 }
 
-/* HEART FIREWORKS */
-function startHeartFireworks() {
+/* RED BACKGROUND FIREWORKS */
+function startRedFireworks() {
     const canvas=document.getElementById("fireworks");
     const ctx=canvas.getContext("2d");
     canvas.width=window.innerWidth;
     canvas.height=window.innerHeight;
 
-    function drawHeart(x,y,size,color,alpha){
-        ctx.globalAlpha=alpha;
-        ctx.fillStyle=color;
-        ctx.beginPath();
-        ctx.moveTo(x,y);
-        ctx.bezierCurveTo(x-size,y-size,x-size*2,y+size,x,y+size*2);
-        ctx.bezierCurveTo(x+size*2,y+size,x+size,y-size,x,y);
-        ctx.fill();
-        ctx.globalAlpha=1;
-    }
-
-    let hearts=[];
+    let particles=[];
 
     function explode(){
         let x=Math.random()*canvas.width;
         let y=Math.random()*canvas.height/2;
-        for(let i=0;i<20;i++){
-            hearts.push({
+
+        for(let i=0;i<60;i++){
+            particles.push({
                 x:x,
                 y:y,
-                dx:(Math.random()-0.5)*4,
-                dy:(Math.random()-0.5)*4,
-                size:Math.random()*8+5,
-                alpha:1,
-                color:"gold"
+                dx:(Math.random()-0.5)*6,
+                dy:(Math.random()-0.5)*6,
+                alpha:1
             });
         }
     }
 
     function animate(){
-        ctx.clearRect(0,0,canvas.width,canvas.height);
-        hearts.forEach((h,i)=>{
-            h.x+=h.dx;
-            h.y+=h.dy;
-            h.alpha-=0.02;
-            drawHeart(h.x,h.y,h.size,h.color,h.alpha);
-            if(h.alpha<=0) hearts.splice(i,1);
+        ctx.fillStyle="rgba(0,0,0,0.2)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+
+        particles.forEach((p,i)=>{
+            p.x+=p.dx;
+            p.y+=p.dy;
+            p.alpha-=0.02;
+
+            ctx.globalAlpha=p.alpha;
+            ctx.fillStyle="red";
+            ctx.beginPath();
+            ctx.arc(p.x,p.y,2,0,Math.PI*2);
+            ctx.fill();
+
+            if(p.alpha<=0) particles.splice(i,1);
         });
+
+        ctx.globalAlpha=1;
         requestAnimationFrame(animate);
     }
 
-    setInterval(explode,2000);
+    setInterval(explode,3000);
     animate();
-}
-
-function celebrate(){
-    alert("Forever starts now ❤️✨");
 }
 
 </script>
